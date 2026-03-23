@@ -90,6 +90,29 @@ This is the first useful complete surface for our split:
 - GitHub App identity handles issue / PR workflow conversation and metadata actions
 - Schwi identity continues to own git pushes and wiki git pushes
 
+## Future note: local GitHub event routing without public webhooks
+
+A likely future expansion is to let `OpenClaw-APP` emulate webhook-style behavior **without** exposing the local network to the internet.
+
+Preferred shape:
+- poll GitHub every ~60 seconds for subscribed repositories
+- maintain durable cursors / last-seen ids so events are emitted once
+- support a local subscription registry such as:
+  - repo owner/name
+  - event type (`issue.opened`, `issue.comment.created`, `pull_request.opened`, `pull_request.review.submitted`, etc.)
+  - local dispatch target inside OpenClaw
+- dispatch matching events into OpenClaw through a local-only bridge rather than public inbound webhooks
+
+Good v1 event candidates:
+- issue opened
+- issue commented
+- issue closed / reopened
+- pull request opened
+- pull request commented
+- pull request review submitted
+
+This should be treated as a local event-router / subscription system, not as true public GitHub webhooks.
+
 ## Likely next expansions
 
 - route protection / shared-secret auth in front of the local API
