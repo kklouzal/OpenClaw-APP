@@ -23,7 +23,8 @@ This service:
 - authenticates as a GitHub App using the app id + private key
 - discovers installation ids for target owners/repos
 - creates installation-scoped Octokit clients and tokens
-- exposes a tiny HTTP API for health, installation inspection, and token acquisition / future GitHub workflow actions
+- exposes a small local HTTP API for health, installation inspection, token acquisition, and GitHub workflow actions
+- binds to loopback by default so it can be used as a local OpenClaw automation surface
 
 ## What this service does *not* do
 
@@ -58,23 +59,32 @@ npm start
 
 The service is already wired against the real GitHub App credentials and can mint installation tokens for installed repositories.
 
-## Initial API surface
+## API surface
 
 - `GET /healthz`
 - `GET /app`
 - `GET /installations`
 - `POST /token` with JSON body `{ "owner": "kklouzal", "repo": "_Vulkan" }`
+- `GET /labels?owner=kklouzal&repo=_Vulkan`
+- `POST /labels`
+- `GET /milestones?owner=kklouzal&repo=_Vulkan&state=open`
+- `POST /milestones`
+- `POST /issues`
+- `POST /issues/comment`
+- `PUT /issues/labels`
+- `PUT /issues/milestone`
+- `PUT /issues/state`
+- `POST /pulls/comment`
+- `POST /pulls/review`
 
-The `/token` endpoint is intentionally simple for the first cut so we can validate app auth before layering higher-level GitHub action helpers on top.
+This is the first useful complete surface for our split:
+- GitHub App identity handles issue / PR workflow conversation and metadata actions
+- Schwi identity continues to own git pushes and wiki git pushes
 
-## Next likely expansions
+## Likely next expansions
 
-Once the GitHub App credentials exist and the base auth path is verified, likely next steps are:
-
-- repo-scoped issue comment endpoint
-- repo-scoped issue create endpoint
-- label / milestone mutation endpoints
-- PR comment / state workflow endpoints
-- optional audit logging
-- optional allowlist of repos/actions
-Claw integration patterns
+- route protection / shared-secret auth in front of the local API
+- repo allowlist / action allowlist
+- audit logging
+- higher-level compound workflow helpers for OpenClaw agents
+- direct OpenClaw integration patterns

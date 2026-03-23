@@ -7,6 +7,7 @@ dotenv.config();
 
 const schema = z.object({
   PORT: z.coerce.number().int().positive().default(8787),
+  BIND_HOST: z.string().min(1).default('127.0.0.1'),
   GITHUB_APP_ID: z.string().min(1, 'GITHUB_APP_ID is required'),
   GITHUB_APP_PRIVATE_KEY_PATH: z.string().min(1, 'GITHUB_APP_PRIVATE_KEY_PATH is required'),
   GITHUB_APP_WEBHOOK_SECRET: z.string().optional().default('')
@@ -25,6 +26,7 @@ if (!fs.existsSync(privateKeyPath)) {
 
 export const config = {
   port: parsed.data.PORT,
+  bindHost: parsed.data.BIND_HOST,
   appId: parsed.data.GITHUB_APP_ID,
   privateKeyPath,
   privateKey: fs.readFileSync(privateKeyPath, 'utf8'),

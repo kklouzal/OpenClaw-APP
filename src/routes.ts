@@ -117,6 +117,24 @@ export async function createMilestone(input: z.infer<typeof createMilestoneSchem
   return response.data;
 }
 
+export const createLabelSchema = repoSchema.extend({
+  name: z.string().min(1),
+  color: z.string().regex(/^[0-9a-fA-F]{6}$/),
+  description: z.string().optional()
+});
+
+export async function createLabel(input: z.infer<typeof createLabelSchema>) {
+  const { octokit } = await octokitForRepo(input.owner, input.repo);
+  const response = await octokit.rest.issues.createLabel({
+    owner: input.owner,
+    repo: input.repo,
+    name: input.name,
+    color: input.color,
+    description: input.description
+  });
+  return response.data;
+}
+
 export const listRepoLabelsSchema = repoSchema;
 export async function listRepoLabels(input: z.infer<typeof listRepoLabelsSchema>) {
   const { octokit } = await octokitForRepo(input.owner, input.repo);
@@ -124,6 +142,55 @@ export async function listRepoLabels(input: z.infer<typeof listRepoLabelsSchema>
     owner: input.owner,
     repo: input.repo,
     per_page: 100
+  });
+  return response.data;
+}
+
+export const listMilestonesSchema = repoSchema.extend({
+  state: z.enum(['open', 'closed', 'all']).optional().default('open')
+});
+
+export async function listMilestones(input: z.infer<typeof listMilestonesSchema>) {
+  const { octokit } = await octokitForRepo(input.owner, input.repo);
+  const response = await octokit.rest.issues.listMilestones({
+    owner: input.owner,
+    repo: input.repo,
+    state: input.state,
+    per_page: 100
+  });
+  return response.data;
+}
+
+export const pullCommentSchema = repoSchema.extend({
+  pull_number: z.number().int().positive(),
+  body: z.string().min(1)
+});
+
+export async function createPullComment(input: z.infer<typeof pullCommentSchema>) {
+  const { octokit } = await octokitForRepo(input.owner, input.repo);
+  const response = await octokit.rest.issues.createComment({
+    owner: input.owner,
+    repo: input.repo,
+    issue_number: input.pull_number,
+    body: input.body
+  });
+  return response.data;
+}
+
+export const pullReviewSchema = repoSchema.extend({
+  pull_number: z.number().int().positive(),
+  body: z.string().default(''),
+  event: z.enum(['APPROVE', 'REQUEST_CHANGES', 'COMMENT'])
+});
+
+export async function createPullReview(input: z.infer<typeof pullReviewSchema>) {
+  const { octokit } = await octokitForRepo(input.owner, input.repo);
+  const response = await octokit.rest.pulls.createReview({
+    owner: input.owner,
+    repo: input.repo,
+    pull_number: input.pull_number,
+    body: input.body,
+    event: input.event
   });
   return response.data;
 }

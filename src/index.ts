@@ -6,11 +6,19 @@ import {
   createIssue,
   createIssueComment,
   createIssueSchema,
+  createLabel,
+  createLabelSchema,
   createMilestone,
   createMilestoneSchema,
+  createPullComment,
+  createPullReview,
   issueCommentSchema,
+  listMilestones,
+  listMilestonesSchema,
   listRepoLabels,
   listRepoLabelsSchema,
+  pullCommentSchema,
+  pullReviewSchema,
   setIssueLabels,
   setLabelsSchema,
   updateIssueMilestone,
@@ -64,6 +72,26 @@ app.get('/labels', async (req, res, next) => {
     const body = listRepoLabelsSchema.parse(req.query);
     const labels = await listRepoLabels(body);
     res.json({ ok: true, labels });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post('/labels', async (req, res, next) => {
+  try {
+    const body = createLabelSchema.parse(req.body);
+    const label = await createLabel(body);
+    res.json({ ok: true, label });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get('/milestones', async (req, res, next) => {
+  try {
+    const body = listMilestonesSchema.parse(req.query);
+    const milestones = await listMilestones(body);
+    res.json({ ok: true, milestones });
   } catch (error) {
     next(error);
   }
@@ -129,11 +157,31 @@ app.post('/milestones', async (req, res, next) => {
   }
 });
 
+app.post('/pulls/comment', async (req, res, next) => {
+  try {
+    const body = pullCommentSchema.parse(req.body);
+    const comment = await createPullComment(body);
+    res.json({ ok: true, comment });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post('/pulls/review', async (req, res, next) => {
+  try {
+    const body = pullReviewSchema.parse(req.body);
+    const review = await createPullReview(body);
+    res.json({ ok: true, review });
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.use((error: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   const message = error instanceof Error ? error.message : 'unknown error';
   res.status(500).json({ ok: false, error: message });
 });
 
-app.listen(config.port, () => {
-  console.log(`OpenClaw-APP listening on http://127.0.0.1:${config.port}`);
+app.listen(config.port, config.bindHost, () => {
+  console.log(`OpenClaw-APP listening on http://${config.bindHost}:${config.port}`);
 });
