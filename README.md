@@ -54,6 +54,10 @@ npm run build
 npm start
 ```
 
+## Current state
+
+The service is already wired against the real GitHub App credentials and can mint installation tokens for installed repositories.
+
 ## Initial API surface
 
 - `GET /healthz`
@@ -73,3 +77,4 @@ Once the GitHub App credentials exist and the base auth path is verified, likely
 - PR comment / state workflow endpoints
 - optional audit logging
 - optional allowlist of repos/actions
+Claw integration patterns
