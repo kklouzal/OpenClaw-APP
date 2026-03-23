@@ -55,6 +55,15 @@ npm run build
 npm start
 ```
 
+## Local service
+
+A user-level systemd unit can keep the service alive for local OpenClaw usage:
+
+```bash
+systemctl --user enable --now openclaw-app.service
+systemctl --user status openclaw-app.service
+```
+
 ## Current state
 
 The service is already wired against the real GitHub App credentials and can mint installation tokens for installed repositories.
